@@ -26,6 +26,7 @@ int scor,nrstelute;
 int nrLinii,nrColoane,i,j;
 char harta[MAX][MAX];
 char car;
+bool poateSari = true;
 
 ifstream fisier("harta.txt");
 
@@ -83,61 +84,110 @@ void cumSeJoaca(int latimeFereastra, int inaltimeFereastra) {
 }
 
 void afiseazaMeniu(int latimeFereastra, int inaltimeFereastra) {
+    // Dimensiuni pentru fundal și butoane
+    const int fundalLatime = latimeFereastra;
+    const int fundalInaltime = inaltimeFereastra;
+    const int butonLatime = 200;
+    const int butonInaltime = 80;
+
+    // Inițializare fereastră
     initwindow(latimeFereastra, inaltimeFereastra, "Meniu Mario");
 
-    setbkcolor(RED);
-    cleardevice();
+    // Afișare imagine fundal
+    readimagefile("background.jpg", 0, 0, fundalLatime, fundalInaltime);
 
-    // Titlul jocului
-    settextstyle(COMPLEX_FONT, HORIZ_DIR, 4);
-    setcolor(BLACK);
-    outtextxy(latimeFereastra / 2 - 200, 50, "Mario: Jocul ");
+    // Coordonate pentru butoane
+    int playX1 = (latimeFereastra - butonLatime) / 2;
+    int playY1 = 200;
+    int playX2 = playX1 + butonLatime;
+    int playY2 = playY1 + butonInaltime;
 
-    // Butonul JOACA ACUM
-    int butonLatime = 200;
-    int butonInaltime = 80;
-    int x1 = (latimeFereastra - butonLatime) / 2;
-    int y1 = 200;
-    int x2 = x1 + butonLatime;
-    int y2 = y1 + butonInaltime;
+    int cumX1 = playX1;
+    int cumY1 = playY1 + 100;
+    int cumX2 = cumX1 + butonLatime;
+    int cumY2 = cumY1 + butonInaltime;
 
-    setfillstyle(SOLID_FILL, GREEN);
-    bar(x1, y1, x2, y2);
-    setcolor(WHITE);
-    settextstyle(BOLD_FONT, HORIZ_DIR, 2);
-    outtextxy(x1 + 40, y1 + 25, "Joaca acum!");
+    int difX1 = playX1;
+    int difY1 = cumY1 + 100;
+    int difX2 = difX1 + butonLatime;
+    int difY2 = difY1 + butonInaltime;
 
-    // Butonul CUM SE JOACA
-    int x3 = x1, y3 = 320, x4 = x3 + butonLatime, y4 = y3 + butonInaltime;
+    // Afișare butoane
+    readimagefile("play-button.jpg", playX1, playY1, playX2, playY2);
+    readimagefile("howto-button.jpg", cumX1, cumY1, cumX2, cumY2);
+    readimagefile("difficulty-button.jpg", difX1, difY1, difX2, difY2);
 
-    setfillstyle(SOLID_FILL, ERANGE);
-    bar(x3, y3, x4, y4);
-    setcolor(WHITE);
-    settextstyle(BOLD_FONT, HORIZ_DIR, 2);
-    outtextxy(x3 + 25, y3 + 25, "Cum se joaca?");
+    // Dropdown opțiuni (imagini pentru dificultăți)
+    int optiuneLatime = 200, optiuneInaltime = 50;
+    int optiuneX1 = difX1, optiuneX2 = difX2;
+    int optiuneY1 = difY2, optiuneY2 = optiuneY1 + optiuneInaltime;
+
+    char dificultate[20] = "Mediu";
 
     while (true) {
         if (ismouseclick(WM_LBUTTONDOWN)) {
             int mouseX = mousex(), mouseY = mousey();
             clearmouseclick(WM_LBUTTONDOWN);
 
-            // Clic pe JOACA ACUM
-            if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) {
+            // Verificăm clic pe "Play Now"
+            if (mouseX >= playX1 && mouseX <= playX2 && mouseY >= playY1 && mouseY <= playY2) {
                 closegraph();
-                return; // Merge in joc
+                return; // Trecem la joc
             }
 
-            // Clic pe CUM SE JOACA
-            if (mouseX >= x3 && mouseX <= x4 && mouseY >= y3 && mouseY <= y4) {
+            // Verificăm clic pe "Cum se joacă?"
+            if (mouseX >= cumX1 && mouseX <= cumX2 && mouseY >= cumY1 && mouseY <= cumY2) {
                 closegraph();
                 cumSeJoaca(latimeFereastra, inaltimeFereastra);
                 return;
             }
+
+            // Verificăm clic pe "Dificultate"
+            if (mouseX >= difX1 && mouseX <= difX2 && mouseY >= difY1 && mouseY <= difY2) {
+                // Desenăm dropdown-ul cu opțiuni
+                readimagefile("easy-button.jpg", optiuneX1, optiuneY1, optiuneX2, optiuneY1 + optiuneInaltime);
+                readimagefile("medium-button.jpg", optiuneX1, optiuneY1 + optiuneInaltime, optiuneX2, optiuneY1 + 2 * optiuneInaltime);
+                readimagefile("hard-button.jpg", optiuneX1, optiuneY1 + 2 * optiuneInaltime, optiuneX2, optiuneY1 + 3 * optiuneInaltime);
+
+                while (true) {
+                    if (ismouseclick(WM_LBUTTONDOWN)) {
+                        mouseX = mousex();
+                        mouseY = mousey();
+                        clearmouseclick(WM_LBUTTONDOWN);
+
+                        // Selectăm opțiunea "Usor"
+                        if (mouseX >= optiuneX1 && mouseX <= optiuneX2 && mouseY >= optiuneY1 && mouseY < optiuneY1 + optiuneInaltime) {
+                            strcpy(dificultate, "Usor");
+                           // strcpy(fisierHarta, "harta.txt");
+                            break;
+                        }
+                        // Selectăm opțiunea "Mediu"
+                        else if (mouseX >= optiuneX1 && mouseX <= optiuneX2 && mouseY >= optiuneY1 + optiuneInaltime && mouseY < optiuneY1 + 2 * optiuneInaltime) {
+                            strcpy(dificultate, "Mediu");
+                          //  strcpy(fisierHarta, "harta-mediu.txt");
+                            break;
+                        }
+                        // Selectăm opțiunea "Dificil"
+                        else if (mouseX >= optiuneX1 && mouseX <= optiuneX2 && mouseY >= optiuneY1 + 2 * optiuneInaltime && mouseY < optiuneY1 + 3 * optiuneInaltime) {
+                            strcpy(dificultate, "Dificil");
+                          //  strcpy(fisierHarta, "harta-dificil.txt");
+                            break;
+                        }
+                    }
+                }
+
+                // Ștergem dropdown-ul după selecție
+                setfillstyle(SOLID_FILL, LIGHTBLUE);
+                bar(optiuneX1, optiuneY1, optiuneX2, optiuneY1 + 3 * optiuneInaltime);
+
+                // Afișăm nivelul selectat pe buton
+                readimagefile((strcmp(dificultate, "Usor") == 0 ? "easy-button.jpg" :
+                              (strcmp(dificultate, "Mediu") == 0 ? "medium-button.jpg" : "hard-button.jpg")),
+                              difX1, difY1, difX2, difY2);
+            }
         }
     }
 }
-
-
 
 void afiseazaMario()
 { int y=imario*latime, x=jmario*latime;
@@ -237,56 +287,97 @@ void afiseazaScor() {
 
 void urmatoareaIpostaza()
 {
-    if (directie=="dreapta")
-        {
-            if (abs(ipostaza)==10) ipostaza=1;
-            if (ipostaza<0) ipostaza=-ipostaza;
-            ipostaza++; if (ipostaza==4) ipostaza=1;
-            if (jmario<nrColoane-1 && harta[imario+1][jmario+1]!='.')
-            {
-                jmario++;
-                if (harta[imario][jmario]=='*')
-                {
-                    scor++; harta[imario][jmario]='.'; afiseazaScor();
-                }
-            }
-        }
-    else
-    if (directie=="stanga")
-        {
-            if (abs(ipostaza)==10) ipostaza=-1;
-            if (ipostaza>0) ipostaza=-ipostaza;
-            ipostaza--; if (ipostaza==-4) ipostaza=-1;
-            if (jmario>0)
-            {
-                jmario--;
-                if (harta[imario][jmario]=='*')
-                {
-                    scor++; harta[imario][jmario]='.'; afiseazaScor();
-                }
-            }
-        }
-    if (directie=="sus")
+    if (directie == "dreapta")
     {
-        if (abs(ipostaza)==10) ipostaza=-ipostaza;
-        else ipostaza=10;
-        if (harta[imario-1][jmario]=='#') imario--;
+        if (abs(ipostaza) == 10) ipostaza = 1;
+        if (ipostaza < 0) ipostaza = -ipostaza;
+        ipostaza++;
+        if (ipostaza == 4) ipostaza = 1;
+
+        // Verificăm blocul la dreapta și permitem scara
+        if (jmario < nrColoane - 1 && (harta[imario][jmario + 1] == '.' || harta[imario][jmario + 1] == '#' || harta[imario + 1][jmario + 1] == '@'))
+        {
+            jmario++;
+            if (harta[imario][jmario] == '*') // Dacă găsește o stea
+            {
+                scor++;
+                harta[imario][jmario] = '.';
+                afiseazaScor();
+            }
+        }
     }
-    if (directie=="jos")
+    else if (directie == "stanga")
     {
-        if (abs(ipostaza)==10) ipostaza=-ipostaza;
-        else ipostaza=-10;
-        if (harta[imario+1][jmario]=='#') imario++;
+        if (abs(ipostaza) == 10) ipostaza = -1;
+        if (ipostaza > 0) ipostaza = -ipostaza;
+        ipostaza--;
+        if (ipostaza == -4) ipostaza = -1;
+
+        // Verificăm blocul la stânga și permitem scara
+        if (jmario > 0 && (harta[imario][jmario - 1] == '.' || harta[imario][jmario - 1] == '#' || harta[imario + 1][jmario - 1] == '@'))
+        {
+            jmario--;
+            if (harta[imario][jmario] == '*') // Dacă găsește o stea
+            {
+                scor++;
+                harta[imario][jmario] = '.';
+                afiseazaScor();
+            }
+        }
+    }
+    else if (directie == "sus")
+    {
+        if (abs(ipostaza) == 10) ipostaza = -ipostaza;
+        else ipostaza = 10;
+
+        if (imario > 0 && harta[imario - 1][jmario] == '#') // Urcă pe scări
+            imario--;
+    }
+    else if (directie == "jos")
+    {
+        if (abs(ipostaza) == 10) ipostaza = -ipostaza;
+        else ipostaza = -10;
+
+        if (imario < nrLinii - 1 && harta[imario + 1][jmario] == '#') // Coboară pe scări
+            imario++;
     }
 }
 
 void verificaSiCadeMario() {
-    while (imario < nrLinii - 1 && harta[imario + 1][jmario] == '.') {
+    while (imario < nrLinii - 1 && (harta[imario + 1][jmario] == '.' || harta[imario + 1][jmario] == '%')) {
         stergeMario();
         imario++;
         afiseazaMario();
-        delay(100);
+        delay(50);
     }
+
+    // Mario a atins solul (orice altceva decât spațiu sau nor)
+    if (harta[imario + 1][jmario] != '.' && harta[imario + 1][jmario] != '%') {
+        poateSari = true; // Mario poate sări din nou
+    }
+}
+
+void sareMario() {
+    if (!poateSari) return; // Blochez săritura dacă Mario deja sare
+    poateSari = false;
+
+    int inaltimeSaritura = 3; // Câte linii urcă Mario
+    int durataSaritura = 100; // Delay între mișcări
+
+    // Mario sare în sus
+    for (int i = 0; i < inaltimeSaritura; i++) {
+        if (imario > 0 && (harta[imario - 1][jmario] == '.' || harta[imario - 1][jmario] == '%')) {
+            stergeMario();
+            imario--;
+            afiseazaMario();
+            delay(durataSaritura);
+        }
+        else
+            break; // Dacă Mario nu poate urca, ieșim din buclă
+    }
+
+    // Mario cade în jos
+    verificaSiCadeMario();
 }
 
 
@@ -325,11 +416,14 @@ int main()
      directie="dreapta";
     do
     {
-        tasta=getch(); if (tasta==0) tasta=getch();
-        if (tasta==STG && jmario>0 && harta[imario+1][jmario-1]!='.') directie="stanga";
-        if (tasta==DRP && jmario<nrColoane-1 && harta[imario+1][jmario+1]!='.') directie="dreapta";
+        tasta=getch();
+        if (tasta==0) tasta=getch();
+
+        if (tasta==STG && jmario>0) directie="stanga";
+        if (tasta==DRP && jmario<nrColoane-1 ) directie="dreapta";
         if (tasta==SUS && harta[imario-1][jmario]=='#') directie="sus";
         if (tasta==JOS && harta[imario+1][jmario]=='#') directie="jos";
+        if (tasta == SPC) sareMario();
         stergeMario();
         urmatoareaIpostaza();
         afiseazaMario();
