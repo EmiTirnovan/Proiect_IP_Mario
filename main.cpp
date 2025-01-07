@@ -29,6 +29,7 @@ char car;
 bool poateSari = true;
 
 ifstream fisier("harta.txt");
+ifstream fisier2("harta-mediu.txt");
 
 void afiseazaMeniu(int latimeFereastra, int inaltimeFereastra);
 
@@ -107,22 +108,10 @@ void afiseazaMeniu(int latimeFereastra, int inaltimeFereastra) {
     int cumX2 = cumX1 + butonLatime;
     int cumY2 = cumY1 + butonInaltime;
 
-    int difX1 = playX1;
-    int difY1 = cumY1 + 100;
-    int difX2 = difX1 + butonLatime;
-    int difY2 = difY1 + butonInaltime;
 
     // Afișare butoane
     readimagefile("play-button.jpg", playX1, playY1, playX2, playY2);
     readimagefile("howto-button.jpg", cumX1, cumY1, cumX2, cumY2);
-    readimagefile("difficulty-button.jpg", difX1, difY1, difX2, difY2);
-
-    // Dropdown opțiuni (imagini pentru dificultăți)
-    int optiuneLatime = 200, optiuneInaltime = 50;
-    int optiuneX1 = difX1, optiuneX2 = difX2;
-    int optiuneY1 = difY2, optiuneY2 = optiuneY1 + optiuneInaltime;
-
-    char dificultate[20] = "Mediu";
 
     while (true) {
         if (ismouseclick(WM_LBUTTONDOWN)) {
@@ -142,73 +131,48 @@ void afiseazaMeniu(int latimeFereastra, int inaltimeFereastra) {
                 return;
             }
 
-            // Verificăm clic pe "Dificultate"
-            if (mouseX >= difX1 && mouseX <= difX2 && mouseY >= difY1 && mouseY <= difY2) {
-                // Desenăm dropdown-ul cu opțiuni
-                readimagefile("easy-button.jpg", optiuneX1, optiuneY1, optiuneX2, optiuneY1 + optiuneInaltime);
-                readimagefile("medium-button.jpg", optiuneX1, optiuneY1 + optiuneInaltime, optiuneX2, optiuneY1 + 2 * optiuneInaltime);
-                readimagefile("hard-button.jpg", optiuneX1, optiuneY1 + 2 * optiuneInaltime, optiuneX2, optiuneY1 + 3 * optiuneInaltime);
-
-                while (true) {
-                    if (ismouseclick(WM_LBUTTONDOWN)) {
-                        mouseX = mousex();
-                        mouseY = mousey();
-                        clearmouseclick(WM_LBUTTONDOWN);
-
-                        // Selectăm opțiunea "Usor"
-                        if (mouseX >= optiuneX1 && mouseX <= optiuneX2 && mouseY >= optiuneY1 && mouseY < optiuneY1 + optiuneInaltime) {
-                            strcpy(dificultate, "Usor");
-                           // strcpy(fisierHarta, "harta.txt");
-                            break;
-                        }
-                        // Selectăm opțiunea "Mediu"
-                        else if (mouseX >= optiuneX1 && mouseX <= optiuneX2 && mouseY >= optiuneY1 + optiuneInaltime && mouseY < optiuneY1 + 2 * optiuneInaltime) {
-                            strcpy(dificultate, "Mediu");
-                          //  strcpy(fisierHarta, "harta-mediu.txt");
-                            break;
-                        }
-                        // Selectăm opțiunea "Dificil"
-                        else if (mouseX >= optiuneX1 && mouseX <= optiuneX2 && mouseY >= optiuneY1 + 2 * optiuneInaltime && mouseY < optiuneY1 + 3 * optiuneInaltime) {
-                            strcpy(dificultate, "Dificil");
-                          //  strcpy(fisierHarta, "harta-dificil.txt");
-                            break;
-                        }
-                    }
-                }
-
-                // Ștergem dropdown-ul după selecție
-                setfillstyle(SOLID_FILL, LIGHTBLUE);
-                bar(optiuneX1, optiuneY1, optiuneX2, optiuneY1 + 3 * optiuneInaltime);
-
-                // Afișăm nivelul selectat pe buton
-                readimagefile((strcmp(dificultate, "Usor") == 0 ? "easy-button.jpg" :
-                              (strcmp(dificultate, "Mediu") == 0 ? "medium-button.jpg" : "hard-button.jpg")),
-                              difX1, difY1, difX2, difY2);
-            }
         }
     }
 }
 
-void afiseazaMario()
-{ int y=imario*latime, x=jmario*latime;
-    switch(ipostaza) {
-        case -10: readimagefile("Mario-spate1.jpg", x,y,x+latime,y+latime); break;
+void afiseazaMario() {
+    int y = imario * latime, x = jmario * latime;
 
-        case 10: readimagefile("Mario-spate2.jpg", x,y,x+latime,y+latime); break;
+    // Verificăm dacă Mario este pe o scară și NU este în ipostaza -10 sau 10
+    if (harta[imario][jmario] == '#' && ipostaza != -10 && ipostaza != 10) {
+        readimagefile("Mario-spate.jpg", x, y, x + latime, y + latime);
+        return;
+    }
+
+    // Restul cazurilor pentru diferite ipostaze
+    switch (ipostaza) {
+        case -10:
+            readimagefile("Mario-spate1.jpg", x, y, x + latime, y + latime);
+            break;
+        case 10:
+            readimagefile("Mario-spate2.jpg", x, y, x + latime, y + latime);
+            break;
         case 1:
-            readimagefile("Mario.jpg", x,y,x+latime,y+latime); break;
+            readimagefile("Mario.jpg", x, y, x + latime, y + latime);
+            break;
         case 2:
-            readimagefile("run.gif", x,y,x+latime,y+latime); break;
+            readimagefile("run.gif", x, y, x + latime, y + latime);
+            break;
         case 3:
-            readimagefile("Mario3.jpg", x,y,x+latime,y+latime); break;
+            readimagefile("Mario3.jpg", x, y, x + latime, y + latime);
+            break;
         case -1:
-            readimagefile("Mario4.jpg", x,y,x+latime,y+latime); break;
+            readimagefile("Mario4.jpg", x, y, x + latime, y + latime);
+            break;
         case -2:
-            readimagefile("Mario5.jpg", x,y,x+latime,y+latime); break;
+            readimagefile("Mario5.jpg", x, y, x + latime, y + latime);
+            break;
         case -3:
-            readimagefile("Mario6.jpg", x,y,x+latime,y+latime); break;
+            readimagefile("Mario6.jpg", x, y, x + latime, y + latime);
+            break;
     }
 }
+
 
 void afiseazaPoza(char c, int i, int j)
 {
@@ -228,7 +192,7 @@ void stergeMario()
 {
     afiseazaPoza(harta[imario][jmario],imario,jmario);
 }
-
+void incarcaHarta2();
 void afiseazaScor() {
     int i;
     for (i = 1; i <= scor; i++) {
@@ -275,7 +239,11 @@ void afiseazaScor() {
                 // Verificăm dacă s-a dat click pe buton
                 if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) {
                     closegraph();
-                    afiseazaMeniu(latimeFereastra, inaltimeFereastra); // Reîncepem jocul
+                    incarcaHarta2();
+
+        ipostaza = 1; // Resetăm ipostaza lui Mario
+        afiseazaMario(); // Afișăm Mario pe harta reîncărcată
+        scor = 0;       // Resetăm scorul
                     return;
                 }
             }
@@ -361,8 +329,8 @@ void sareMario() {
     if (!poateSari) return; // Blochez săritura dacă Mario deja sare
     poateSari = false;
 
-    int inaltimeSaritura = 3; // Câte linii urcă Mario
-    int durataSaritura = 100; // Delay între mișcări
+    int inaltimeSaritura = 2; // Câte linii urcă Mario
+    int durataSaritura = 50; // Delay între mișcări
 
     // Mario sare în sus
     for (int i = 0; i < inaltimeSaritura; i++) {
@@ -403,11 +371,34 @@ void incarcaHarta()
     scor=0;
 }
 
+void incarcaHarta2()
+{
+    fisier2>>nrLinii>>nrColoane;
+    initwindow(latime*nrColoane,latime*nrLinii,"Mario pe scari");
+    setbkcolor(WHITE); cleardevice();
+    nrstelute=0;
+    for (i=0;i<nrLinii;i++)
+    {
+        for (j=0;j<nrColoane;j++)
+            {
+                fisier2>>car;
+                if (car=='*') nrstelute++;
+                if (car=='M') {imario=i; jmario=j; car='.';}
+                harta[i][j]=car;
+                afiseazaPoza(harta[i][j],i,j);
+            }
+    }
+    fisier2.close();
+
+    scor=0;
+}
+
 int main()
 {
     int latimeFereastra = latime * MAX; // Dimensiunea ferestrei în funcție de lățimea jocului
     int inaltimeFereastra = latime * MAX;
 
+    int stop = 0;
     afiseazaMeniu(latimeFereastra, inaltimeFereastra); // Afișăm meniul
     incarcaHarta();
     ipostaza=1;
@@ -433,6 +424,39 @@ int main()
     } while (tasta!=ESC);  // tasta Esc (escape)
 
     closegraph();
+         stop = 1;
+
+    if(stop == 1)
+    {
+        int latimeFereastra = latime * MAX; // Dimensiunea ferestrei în funcție de lățimea jocului
+        int inaltimeFereastra = latime * MAX;
+        incarcaHarta2();
+        ipostaza=1;
+        afiseazaMario();
+        //PlaySound("SuperMarioBros.wav", NULL, SND_ASYNC);
+        directie="dreapta";
+        do
+        {
+            tasta=getch();
+            if (tasta==0) tasta=getch();
+
+            if (tasta==STG && jmario>0) directie="stanga";
+            if (tasta==DRP && jmario<nrColoane-1 ) directie="dreapta";
+            if (tasta==SUS && harta[imario-1][jmario]=='#') directie="sus";
+            if (tasta==JOS && harta[imario+1][jmario]=='#') directie="jos";
+            if (tasta == SPC) sareMario();
+            stergeMario();
+            urmatoareaIpostaza();
+            afiseazaMario();
+            verificaSiCadeMario();
+
+            delay(200);
+        }
+        while (tasta!=ESC);    // tasta Esc (escape)
+
+        closegraph();
+    }
+
 
     return 0;
 }
